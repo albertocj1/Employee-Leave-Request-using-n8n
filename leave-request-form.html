@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leave Request</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Epilogue:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f2ec;
+    --cream: #ede9df;
+    --rust: #c4451a;
+    --rust-light: #e8563d;
+    --sage: #3d5a47;
+    --gold: #c9a84c;
+    --line: rgba(13,13,13,0.12);
+    --input-bg: rgba(255,255,255,0.55);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Epilogue', sans-serif;
+    background-color: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px 80px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Decorative background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,69,26,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -150px; left: -150px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(61,90,71,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .page-wrapper {
+    width: 100%;
+    max-width: 720px;
+    animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header */
+  .form-header {
+    margin-bottom: 48px;
+  }
+  .form-header .eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--rust);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .form-header .eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rust);
+    opacity: 0.35;
+    max-width: 60px;
+  }
+  .form-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(38px, 7vw, 64px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .form-header h1 em {
+    font-style: normal;
+    color: var(--rust);
+  }
+  .form-header .sub {
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(13,13,13,0.55);
+    line-height: 1.6;
+    max-width: 380px;
+  }
+
+  /* Card */
+  .form-card {
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.85);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow:
+      0 2px 0 rgba(255,255,255,0.9) inset,
+      0 20px 60px rgba(13,13,13,0.07),
+      0 4px 16px rgba(13,13,13,0.05);
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(13,13,13,0.35);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .form-section { margin-bottom: 36px; }
+  .form-section:last-of-type { margin-bottom: 0; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+
+  @media (max-width: 560px) {
+    .form-card { padding: 28px 22px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  /* Field */
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field.full { grid-column: 1 / -1; }
+
+  label {
+    font-family: 'Syne', sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    opacity: 0.75;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'Epilogue', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  input::placeholder, textarea::placeholder { color: rgba(13,13,13,0.3); font-weight: 300; }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--rust);
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 0 0 3px rgba(196,69,26,0.1);
+  }
+
+  input[type="date"] {
+    color: var(--ink);
+    cursor: pointer;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.4;
+    cursor: pointer;
+  }
+
+  /* Select wrapper */
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '↓';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--rust);
+    pointer-events: none;
+    font-family: 'Syne', sans-serif;
+  }
+
+  select { padding-right: 36px; cursor: pointer; }
+
+  textarea {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.6;
+  }
+
+  /* Leave type chips */
+  .leave-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .leave-chip input[type="radio"] { display: none; }
+  .leave-chip label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 100px;
+    border: 1.5px solid var(--line);
+    background: var(--input-bg);
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(13,13,13,0.6);
+    transition: all 0.18s;
+    opacity: 1;
+  }
+  .leave-chip label .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.4;
+    transition: opacity 0.18s;
+  }
+  .leave-chip input:checked + label {
+    border-color: var(--rust);
+    background: var(--rust);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(196,69,26,0.25);
+  }
+  .leave-chip input:checked + label .dot { opacity: 1; background: rgba(255,255,255,0.6); }
+  .leave-chip label:hover { border-color: var(--rust); color: var(--rust); }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--line); margin: 36px 0; }
+
+  /* Submit */
+  .submit-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .note {
+    font-size: 12px;
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(13,13,13,0.4);
+    max-width: 260px;
+    line-height: 1.5;
+  }
+
+  .btn-submit {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--ink);
+    border: none;
+    border-radius: 100px;
+    padding: 16px 40px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--rust);
+    transform: translateX(-101%);
+    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+    border-radius: inherit;
+  }
+  .btn-submit:hover::before { transform: translateX(0); }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(13,13,13,0.2); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit span, .btn-submit svg { position: relative; z-index: 1; }
+
+  /* Success overlay */
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(245,242,236,0.96);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeIn 0.4s ease;
+  }
+  .success-overlay.show { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .success-icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--sage);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.5s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .success-icon svg { width: 36px; height: 36px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .success-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.5s ease 0.25s both;
+  }
+  .success-sub {
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(13,13,13,0.5);
+    animation: fadeUp 0.5s ease 0.35s both;
+  }
+  .btn-reset {
+    margin-top: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rust);
+    background: none;
+    border: 1.5px solid var(--rust);
+    border-radius: 100px;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    animation: fadeUp 0.5s ease 0.45s both;
+  }
+  .btn-reset:hover { background: var(--rust); color: #fff; }
+
+  /* Error state */
+  input.error, select.error, textarea.error { border-color: #e03a3a; }
+  .err-msg { font-size: 11px; color: #e03a3a; font-weight: 400; margin-top: -3px; }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <header class="form-header">
+    <div class="eyebrow">HR Portal</div>
+    <h1>Leave<br><em>Request</em></h1>
+    <p class="sub">Submit your time-off request below. All fields marked are required for processing.</p>
+  </header>
+
+  <div class="form-card">
+    <form id="leaveForm" novalidate>
+
+      <!-- PERSONAL INFO -->
+      <div class="form-section">
+        <div class="section-label">Personal Info</div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="empName">Employee Name</label>
+            <input type="text" id="empName" name="empName" placeholder="Full legal name" autocomplete="name">
+            <span class="err-msg" id="empNameErr"></span>
+          </div>
+          <div class="field">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@company.com" autocomplete="email">
+            <span class="err-msg" id="emailErr"></span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- DEPARTMENT & TYPE -->
+      <div class="form-section">
+        <div class="section-label">Role & Leave Type</div>
+        <div class="field" style="margin-bottom:20px;">
+          <label for="department">Department</label>
+          <div class="select-wrap">
+            <select id="department" name="department">
+              <option value="" disabled selected>Select your department</option>
+              <option>Engineering</option>
+              <option>Design</option>
+              <option>Product</option>
+              <option>Marketing</option>
+              <option>Sales</option>
+              <option>Finance</option>
+              <option>Human Resources</option>
+              <option>Legal</option>
+              <option>Operations</option>
+              <option>Customer Success</option>
+            </select>
+          </div>
+          <span class="err-msg" id="deptErr"></span>
+        </div>
+        <div class="field">
+          <label>Leave Type</label>
+          <div class="leave-chips" role="group" aria-label="Leave type">
+            <div class="leave-chip">
+              <input type="radio" name="leaveType" id="lt-vacation" value="Vacation">
+              <label for="lt-vacation"><span class="dot"></span>Vacation</label>
+            </div>
+            <div class="leave-chip">
+              <input type="radio" name="leaveType" id="lt-sick" value="Sick Leave">
+              <label for="lt-sick"><span class="dot"></span>Sick Leave</label>
+            </div>
+            <div class="leave-chip">
+              <input type="radio" name="leaveType" id="lt-personal" value="Personal">
+              <label for="lt-personal"><span class="dot"></span>Personal</label>
+            </div>
+            <div class="leave-chip">
+              <input type="radio" name="leaveType" id="lt-parental" value="Parental">
+              <label for="lt-parental"><span class="dot"></span>Parental</label>
+            </div>
+            <div class="leave-chip">
+              <input type="radio" name="leaveType" id="lt-bereavement" value="Bereavement">
+              <label for="lt-bereavement"><span class="dot"></span>Bereavement</label>
+            </div>
+            <div class="leave-chip">
+              <input type="radio" name="leaveType" id="lt-other" value="Other">
+              <label for="lt-other"><span class="dot"></span>Other</label>
+            </div>
+          </div>
+          <span class="err-msg" id="leaveTypeErr"></span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- DATES -->
+      <div class="form-section">
+        <div class="section-label">Duration</div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="startDate">Start Date</label>
+            <input type="date" id="startDate" name="startDate">
+            <span class="err-msg" id="startDateErr"></span>
+          </div>
+          <div class="field">
+            <label for="endDate">End Date</label>
+            <input type="date" id="endDate" name="endDate">
+            <span class="err-msg" id="endDateErr"></span>
+          </div>
+        </div>
+        <div id="durationBadge" style="margin-top:12px; display:none;">
+          <span style="font-family:'Syne',sans-serif; font-size:12px; font-weight:600; color:var(--sage); background:rgba(61,90,71,0.1); padding:5px 14px; border-radius:100px; display:inline-block;">
+            <span id="durationText"></span>
+          </span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- REASON -->
+      <div class="form-section">
+        <div class="section-label">Details</div>
+        <div class="field">
+          <label for="reason">Reason for Leave</label>
+          <textarea id="reason" name="reason" placeholder="Briefly describe the reason for your leave request…"></textarea>
+          <span class="err-msg" id="reasonErr"></span>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-row">
+        <p class="note">Your request will be reviewed within 2 business days.</p>
+        <button type="submit" class="btn-submit">
+          <span>Submit Request</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- Success overlay -->
+<div class="success-overlay" id="successOverlay" role="dialog" aria-modal="true" aria-label="Success">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h2 class="success-title">Request Sent!</h2>
+  <p class="success-sub">Your leave request has been submitted successfully.</p>
+  <button class="btn-reset" id="resetBtn">Submit Another</button>
+</div>
+
+<script>
+  const form = document.getElementById('leaveForm');
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  const durationBadge = document.getElementById('durationBadge');
+  const durationText = document.getElementById('durationText');
+
+  // Set min date to today
+  const today = new Date().toISOString().split('T')[0];
+  startDate.min = today;
+  endDate.min = today;
+
+  // Duration calculator
+  function updateDuration() {
+    const s = new Date(startDate.value);
+    const e = new Date(endDate.value);
+    if (startDate.value && endDate.value && e >= s) {
+      const diff = Math.round((e - s) / (1000*60*60*24)) + 1;
+      durationText.textContent = diff === 1 ? '1 day' : `${diff} days`;
+      durationBadge.style.display = 'block';
+      endDate.min = startDate.value;
+    } else {
+      durationBadge.style.display = 'none';
+    }
+  }
+
+  startDate.addEventListener('change', () => {
+    endDate.min = startDate.value;
+    if (endDate.value && endDate.value < startDate.value) endDate.value = '';
+    updateDuration();
+  });
+  endDate.addEventListener('change', updateDuration);
+
+  // Validation helpers
+  function setError(inputId, errId, msg) {
+    const el = document.getElementById(inputId);
+    const err = document.getElementById(errId);
+    if (msg) { el && el.classList.add('error'); err && (err.textContent = msg); }
+    else { el && el.classList.remove('error'); err && (err.textContent = ''); }
+    return !!msg;
+  }
+
+  function validate() {
+    let hasError = false;
+    const name = document.getElementById('empName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const dept = document.getElementById('department').value;
+    const leaveType = document.querySelector('input[name="leaveType"]:checked');
+    const sd = startDate.value;
+    const ed = endDate.value;
+    const reason = document.getElementById('reason').value.trim();
+
+    if (!name) hasError = setError('empName','empNameErr','Please enter your full name.') || hasError;
+    else setError('empName','empNameErr','');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) hasError = setError('email','emailErr','Email is required.') || hasError;
+    else if (!emailRegex.test(email)) hasError = setError('email','emailErr','Enter a valid email address.') || hasError;
+    else setError('email','emailErr','');
+
+    if (!dept) { document.getElementById('deptErr').textContent = 'Please select a department.'; document.getElementById('department').classList.add('error'); hasError = true; }
+    else { document.getElementById('deptErr').textContent = ''; document.getElementById('department').classList.remove('error'); }
+
+    if (!leaveType) { document.getElementById('leaveTypeErr').textContent = 'Please select a leave type.'; hasError = true; }
+    else document.getElementById('leaveTypeErr').textContent = '';
+
+    if (!sd) hasError = setError('startDate','startDateErr','Start date is required.') || hasError;
+    else setError('startDate','startDateErr','');
+
+    if (!ed) hasError = setError('endDate','endDateErr','End date is required.') || hasError;
+    else if (sd && ed < sd) hasError = setError('endDate','endDateErr','End date must be after start date.') || hasError;
+    else setError('endDate','endDateErr','');
+
+    if (!reason) hasError = setError('reason','reasonErr','Please provide a reason for your leave.') || hasError;
+    else setError('reason','reasonErr','');
+
+    return !hasError;
+  }
+
+  // ── n8n Webhook URL ── change this to your actual webhook URL
+  const WEBHOOK_URL = 'https://your-n8n-instance.com/webhook/leave-request';
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    const btn = form.querySelector('.btn-submit');
+    const btnSpan = btn.querySelector('span');
+    btn.disabled = true;
+    btnSpan.textContent = 'Sending…';
+
+    const payload = {
+      employeeName:  document.getElementById('empName').value.trim(),
+      email:         document.getElementById('email').value.trim(),
+      department:    document.getElementById('department').value,
+      leaveType:     document.querySelector('input[name="leaveType"]:checked')?.value,
+      startDate:     document.getElementById('startDate').value,
+      endDate:       document.getElementById('endDate').value,
+      durationDays:  parseInt(document.getElementById('durationText').textContent) || null,
+      reason:        document.getElementById('reason').value.trim(),
+      submittedAt:   new Date().toISOString()
+    };
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+      document.getElementById('successOverlay').classList.add('show');
+    } catch (err) {
+      console.error('Webhook error:', err);
+      showToast('Submission failed. Please try again.');
+    } finally {
+      btn.disabled = false;
+      btnSpan.textContent = 'Submit Request';
+    }
+  });
+
+  function showToast(msg) {
+    let toast = document.getElementById('errorToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'errorToast';
+      toast.style.cssText = `
+        position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px);
+        background:#1a1a1a; color:#fff; font-family:'Syne',sans-serif; font-size:13px;
+        font-weight:600; padding:14px 28px; border-radius:100px;
+        box-shadow:0 8px 32px rgba(0,0,0,0.2); z-index:200;
+        opacity:0; transition:opacity 0.3s, transform 0.3s;
+      `;
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(20px)';
+    }, 4000);
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    form.reset();
+    durationBadge.style.display = 'none';
+    document.getElementById('successOverlay').classList.remove('show');
+    // Clear all errors
+    ['empName','email','department','startDate','endDate','reason'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('error');
+    });
+    ['empNameErr','emailErr','deptErr','leaveTypeErr','startDateErr','endDateErr','reasonErr'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '';
+    });
+  });
+
+  // Live validation on blur
+  document.getElementById('empName').addEventListener('blur', () => {
+    const v = document.getElementById('empName').value.trim();
+    setError('empName','empNameErr', v ? '' : 'Please enter your full name.');
+  });
+  document.getElementById('email').addEventListener('blur', () => {
+    const v = document.getElementById('email').value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!v) setError('email','emailErr','Email is required.');
+    else if (!emailRegex.test(v)) setError('email','emailErr','Enter a valid email address.');
+    else setError('email','emailErr','');
+  });
+</script>
+</body>
+</html>
