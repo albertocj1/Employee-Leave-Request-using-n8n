@@ -611,7 +611,7 @@
   }
 
   // ── n8n Webhook URL ── change this to your actual webhook URL
-  const WEBHOOK_URL = 'https://primary-production-a810.up.railway.app/webhook-test/10803cd1-4078-498b-83f4-09fa06b96379';
+  const WEBHOOK_URL = 'https://your-n8n-instance.com/webhook/leave-request';
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -635,17 +635,21 @@
     };
 
     try {
-      const res = await fetch(WEBHOOK_URL, {
+      // Use no-cors mode to bypass CORS restrictions with n8n webhooks.
+      // Note: with no-cors the response is opaque (we can't read status),
+      // so we optimistically show success after the request completes.
+      await fetch(WEBHOOK_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+      // If fetch didn't throw, the request was dispatched successfully
       document.getElementById('successOverlay').classList.add('show');
     } catch (err) {
       console.error('Webhook error:', err);
-      showToast('Submission failed. Please try again.');
+      showToast('Could not reach the server. Check your connection or webhook URL.');
     } finally {
       btn.disabled = false;
       btnSpan.textContent = 'Submit Request';
